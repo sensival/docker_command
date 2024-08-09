@@ -69,3 +69,57 @@ docker volume ls
 sudo ls /var/lib/docker/volumes/
 ```
 ## 3. 서로 다른 컨테이너가 같은 스토리지 사용
+```bash
+# 볼륨 생성하는 컨테이너
+docker container run --name  todo2 -d diamol/ch06-todo-list
+
+# 여기는 아무것도 없음
+docker container exec todo2 ls /data
+
+# 이건 볼륨 연결
+docker container run -d --name t3 --volumes-from todo diamol/ch06-todo-list
+
+# 이건 /data에 todo-list에서 만든 볼륨 연결
+docker container exec t3 ls /data
+```
+
+## 4. 같은 볼륨을 사용하는 컨테이너 실습
+```bash
+target='/data'
+
+# 저장할 볼륨 생성
+docker volume create todo-list
+
+# v1 애플리케이션 실행 후 add a item 몇 개 추가하기
+docker container run -d -p 8011:80 -v todo-list/$target --name todo-v1 diamol/ch06-todo-list
+
+# v1 컨테이너 삭제
+docker container rm -f todo-v1
+
+# 같은 볼륨을 사용하는 v2 실행
+docker container run -d -p 8011:80 -v todo-list:$target --name todo-v2 diamol/ch06-todo-list:v2
+```
+## 5. 호스트 컴퓨터의 파일/디렉토리를 사용하기(바인드 마운트)
+```bash
+# 환경 변수 설정
+source="$(pwd)/databases" && target='/data'
+
+# 디렉토리 생성
+mkdir ./databases
+
+# 디렉토리 지정하여 컨테이너 실행
+docker container run --mount type=bind,source=$source,target=$target -d -p 8012:80 diamol/ch06-todo-list
+
+# URL에서 데이터 다운로드
+curl http://localhost:8012
+
+# todo-list.db 생성
+ls ./databases
+```
+바인드 마운트는 컨테이너/호스트에서 쓰기 가능
+
+## 6. 호스트 컴퓨터의 설정 파일을 사용
+```bash
+cd /080258/ch06/exercises/todo-list
+
+# 
