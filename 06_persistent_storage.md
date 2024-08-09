@@ -122,4 +122,59 @@ ls ./databases
 ```bash
 cd /080258/ch06/exercises/todo-list
 
-# 
+# 경로 문자열을 환경 변수로 정의
+source="$(pwd)/config" && target='/app/config'
+
+# 바인드 마운트 적용하여 컨테이너 실행
+docker container run --name togo-configured -d -p 8013:80 --mount type=bind,source=$source,target=$target,readonly diamol/ch06-todo-list
+
+# 애플리케이션 작동여부 확인
+curl http://localhost:8013
+
+# 컨테이너 로그 확인
+docker container logs togo-configured
+```
+
+## 7. 마운트하면 원래 이미지에 포함된 디렉토리는 사라짐
+```bash 
+cd /080258/ch06/exercises/bind-mount
+
+source="$(pwd)/new" && target='/init'
+
+docker container run diamol/ch06-bind-mount
+>> abc.txt
+   def.txt
+
+# 바인드 마운트 적용하여 컨테이너 실행
+docker container run --mount type=bind,source=$source,target=$target diamol/ch06-bind-mount
+>> 123.txt
+   456.txt
+```
+
+## 8. 단일 파일 마운트
+```bash
+docker container run diamol/ch06-bind-mount
+>> abc.txt
+   def.txt
+
+docker container run --mount type=bind,source="$(pwd)/new/123.txt",target=/init/123.txt diamol/ch06-bind-mount
+>> 123.txt
+   abc.txt
+   def.txt
+
+```
+## 9. 연습 문제
+```bash
+docker container rm -f $(docker container ls -aq)
+
+docker container run -d -p 8015:80 diamol/ch06-lab
+
+docker volume create ch06-lab
+
+configSource="$(pwd)/solution"
+configTarget='/app/config'
+dataTarget='/new-data'
+
+docker container run -d -p 8016:80 --mount type=bind,source=$configSource,target=$configTarget,readonly --volume ch06-lab:$dataTarget diamol/ch06-lab
+
+```
