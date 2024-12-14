@@ -14,8 +14,34 @@ curl http://localhost:8080/rng
 # 네 번째부터 호출이 실패한다
 curl http://localhost:8080/rng
 
-# 컨테이너 상태 확인: 컨테이너 상태는 여전히 Up으로 나옴
+# 컨테이너 상태 확인: 컨테이너 상태는 여전히 Up으로 나옴, 도커는 프로세스 상태만 확인하므로 비정상 감지 못함
 docker container ls
 
+```
+```dockerfile
+FROM diamol/dotnet-aspnet
 
+ENTRYPOINT ["dotnet", "/app/Numbers.Api.dll"]
+# 헬스 체크시에는 /health로 요청을 보내는데 응답은 애플리케이션의 정상여부, --fail은 curl이 전달받은 상태를 도커에 전달
+HEALTHCHECK CMD curl --fail http://localhost/health
+
+WORKDIR /app
+COPY --from=builder /out/ .
+
+```
+```bash
+docker image build -t diamol/ch08-numbers-api:v2 -f ./numbers-api/Dockerfile.v2 .
+docker container run -d -p 8081:80 diamol/ch08-numbers-api:v2
+
+#  30 초 뒤 Up .... (healthy) 로 나옴
+docker container ls
+
+# API를 세번 호출한다 -각 호출마다 무작위 숫자 반환
+ curl http://localhost:8081/rng
+ curl http://localhost:8081/rng
+ curl http://localhost:8081/rng
+ curl http://localhost:8081/rng
+
+#  90 초 뒤 Up ....(unhealthy)  로 나옴
+docker container ls
 ```
