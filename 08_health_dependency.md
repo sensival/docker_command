@@ -45,3 +45,19 @@ docker container ls
 #  90 초 뒤 Up ....(unhealthy)  로 나옴
 docker container ls
 ```
+```bash
+# 헬스체크 로그 확인
+docker container inspect $(docker container ls --last 1 --format '{{.ID}}')
+>>
+ "Health": {
+                "Status": "unhealthy",
+                "FailingStreak": 14,
+                "Log": [
+                    {
+                        "Start": "2025-01-21T21:09:49.836556588+09:00",
+                        "End": "2025-01-21T21:09:49.873153188+09:00",
+                        "ExitCode": 22,
+                        "Output": "  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current\n                                 Dload  Upload   Total   Spent    Left  Speed\n\r  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0\r  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0\ncurl: (22) The requested URL returned error: 500 Internal Server Error\n"
+                    },
+
+```
