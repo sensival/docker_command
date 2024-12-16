@@ -61,3 +61,14 @@ docker container inspect $(docker container ls --last 1 --format '{{.ID}}')
                     },
 
 ```
+## 2. 디펜던시 체크가 적용된 컨테이너 실행하기
+```bash
+# 현재 컨테이너 지우고 새로 시작하기
+docker container rm --force $(docker container ls --all --quiet)
+
+docker container run -d -p 8082:80 diamol/ch08-numbers-web
+
+docker container ls
+
+# 웹브라우저에서 접속(호스트 컴퓨터로 접속하려면  ip addr show eth0 확인)
+```
