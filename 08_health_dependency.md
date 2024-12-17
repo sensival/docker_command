@@ -72,3 +72,15 @@ docker container ls
 
 # 웹브라우저에서 접속(호스트 컴퓨터로 접속하려면  ip addr show eth0 확인)
 ```
+```dockerfile
+FROM diamol/dotnet-aspnet
+
+ENV RngApi:Url=http://numbers-api/rng
+
+## && 앞에오는 명령이 성공하면 뒤에 있는 명령어 실행
+CMD curl --fail http://numbers-api/rng && \
+    dotnet Numbers.Web.dll
+
+WORKDIR /app
+COPY --from=builder /out/ .
+```
