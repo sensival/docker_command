@@ -84,3 +84,11 @@ CMD curl --fail http://numbers-api/rng && \
 WORKDIR /app
 COPY --from=builder /out/ .
 ```
+```bash
+# 디펜던시 체크에 실패하면 종료되는 컨테이너
+docker container run -d -p 8084:80 diamol/ch08-numbers-web:v2
+
+#   Exited (6) 16 seconds ago  
+docker container ls --all
+
+```
