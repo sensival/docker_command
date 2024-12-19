@@ -92,3 +92,35 @@ docker container run -d -p 8084:80 diamol/ch08-numbers-web:v2
 docker container ls --all
 
 ```
+
+## 3. 애플리케이션 체크를 위한 커스텀 유틸리티 만들기
+
+```dockerfile
+# http 테스트 유틸리티가 적용된 빌드 과정
+FROM diamol/dotnet-aspnet
+
+ENTRYPOINT ["dotnet", "Numbers.Api.dll"]
+HEALTHCHECK CMD ["dotnet", "Utilities.HttpCheck.dll", "-u", "http://localhost/health"]
+
+WORKDIR /app
+COPY --from=http-check-builder /out/ .
+COPY --from=builder /out/ .
+```
+```bash
+docker container rm --force $(docker container ls --all --quiet)
+
+docker container run -d -p 8082:80 diamol/ch08-numbers-web
+
+docker container ls
+
+docker container run -d -p 8080:80 --health-interval 5s diamol/ch08-numbers-api:v3
+
+docker container ls
+
+curl http://localhost:8080/rng
+curl http://localhost:8080/rng
+curl http://localhost:8080/rng
+curl http://localhost:8080/rng
+
+docker sontainer ls
+```
