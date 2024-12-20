@@ -122,5 +122,21 @@ curl http://localhost:8080/rng
 curl http://localhost:8080/rng
 curl http://localhost:8080/rng
 
-docker sontainer ls
+docker container ls
 ```
+```dockerfile
+# 디펜던시 체크에도 커스텀 유틸리티 사용하기
+FROM diamol/dotnet-aspnet
+
+ENV RngApi__Url=http://numbers-api/rng
+
+# -t 유틸리티가 요청에 대한 응답을 기다릴 제한 시간 -c 옵션은 애플리케이션과 같은 설정 파일을 읽어 그 설정대로 URL을 지정
+CMD dotnet Utilities.HttpCheck.dll -c RngApi:Url -t 900 && \
+    dotnet Numbers.Web.dll
+
+WORKDIR /app
+COPY --from=http-check-builder /out/ .
+COPY --from=builder /out/ .
+```
+
+## 4.
