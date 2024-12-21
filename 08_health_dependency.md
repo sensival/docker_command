@@ -138,5 +138,11 @@ WORKDIR /app
 COPY --from=http-check-builder /out/ .
 COPY --from=builder /out/ .
 ```
+```bash
+docker container  run -d -p 8081:80 diamol/ch08-numbers-web:v3
+
+# api 컨테이너는 실행중(unhealty), web 컨테이너는 exit
+docker container ls --all
+```
 
 ## 4.
