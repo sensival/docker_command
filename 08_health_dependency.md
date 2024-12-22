@@ -145,4 +145,43 @@ docker container  run -d -p 8081:80 diamol/ch08-numbers-web:v3
 docker container ls --all
 ```
 
-## 4.
+## 4.도커 컴포즈에 헬스 체크와 디펜던시 체크 정의하기
+```yaml
+# 헬스 체크 옵션을 설정한 도커 컴포즈 파일
+version: "3.7"
+
+services:
+  numbers-api:
+    image: diamol/ch08-numbers-api:v3
+    ports:
+      - "8087:80"
+    healthcheck:
+      interval: 5s
+      timeout: 1s
+      retries: 2
+      start_period: 5s
+    networks:
+      - app-net
+
+  numbers-web:
+    image: diamol/ch08-numbers-web:v3
+    restart: on-failure
+    environment:
+      - RngApi__Url=http://numbers-api/rng
+    ports:
+      - "8088:80"
+    healthcheck:
+      test: ["CMD", "dotnet", "Utilities.HttpCheck.dll", "-t", "150"]
+      interval: 5s
+      timeout: 1s
+      retries: 2
+      start_period: 10s
+    networks:
+      - app-net
+
+networks:
+  app-net:
+    external:
+      name: nat
+
+``` 
