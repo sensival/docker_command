@@ -185,3 +185,13 @@ networks:
       name: nat
 
 ``` 
+```bash
+docker container rm --force $(docker container ls --all --quiet)
+
+docker-compose up -d
+
+docker container ls
+
+docker container logs numbers_numbers-web_1
+# :8088로 확인해보기
+```
